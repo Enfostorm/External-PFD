@@ -1,0 +1,418 @@
+#: kivy 2.0.0
+
+        # ==================================== Templates ====================================
+<PitchLine@Line>:            # Should work but the width does not change?? Line does get drawn with these
+    width: root.height/800
+    cap: 'square'
+
+<RightLabel@Label>:
+    font_size: root.height / 35    # Tekstgrootte schaalt automatisch mee met de hoogte van de widget
+    text_size: root.height / 5, root.height / 27
+    halign: 'left'
+    font_name: 'B612-Regular'
+<LeftLabel@RightLabel>:
+    halign: 'right'
+# ==================================== Components ====================================
+<Horizon>:
+    pos: root.pos
+    size: root.size
+# Two Rectangles which make up the artificial horizon.
+    canvas:
+        Color:
+            rgb: 51/256, 128/256, 236/256       # Blue, upper rectangle
+        Rectangle:
+            pos: root.x - (self.width * (5) - self.width/2), root.y + self.height / 2 - root.pitch * self.height / (10 * root.scale)
+            size: self.width * 10, self.height * 5
+
+        Color:
+            rgb: 160/256, 74/256, 36/256        # Brown, lower rectangle
+        Rectangle:
+            pos: root.x - (self.width * (5) - self.width/2), root.y - root.height * (5 - 0.5) - root.pitch * self.height / (10 * root.scale)
+            size: root.width * 10, root.height * 5
+
+<HorizonMask>:
+# Horizon with a transparent cutout in the middle to only show the gradation in a central area
+    size: root.size
+    pos: root.pos
+
+    canvas:
+        StencilPush:     # makes the shape for the mask
+        Rectangle:      # Top rectangle
+            pos: root.x, root.y + root.height - root.tightness * root.height
+            size: root.width, root.tightness * root.height         + root.height  # + root.height for rotation
+
+        Rectangle:      # Bottom rectangle
+            pos: root.x, root.y - root.height
+            size: root.width, root.tightness * root.height + root.height
+
+        StencilUse:
+        Color:
+            rgb: 51/256, 128/256, 236/256       # Blue, upper rectangle
+        Rectangle:
+            pos: root.x - (self.width * (5) - self.width/2), root.y + self.height / 2 - root.pitch * self.height / (10 * root.scale)
+            size: self.width * 10, self.height * 5
+
+        Color:
+            rgb: 160/256, 74/256, 36/256        # Brown, lower rectangle
+        Rectangle:
+            pos: root.x - (self.width * (5) - self.width/2), root.y -root.height * (5 - 0.5) - root.pitch * self.height / (10 * root.scale)
+            size: root.width * 10, root.height * 5
+
+        StencilUnUse:    # removes the shape for the mask, same arguments as StencilPush
+        Rectangle:      # Top rectangle
+            pos: root.x , root.y - root.height - root.tightness * root.height
+            size: root.width, root.height/3
+
+        StencilPop:
+
+
+
+<HorizonPitchAndRoll>:
+    pos: root.pos
+    horizon: horizon                 # id passthroughs
+    gradation: gradation
+    mask: mask
+    
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+
+        FloatLayout:
+            size: root.size
+            pos: root.pos
+            Horizon:
+                pos: root.pos
+                id: horizon
+
+            PitchGradationFull:
+                pos: root.pos
+                id: gradation
+
+            HorizonMask:
+                pos: root.pos
+                id: mask
+
+        Image:
+            source: 'images/rollindicator.png'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            size_hint: 999, 0.85        # Big value to prevent being limited by size in x
+            allow_stretch: True         # enable picture to scale above 100%, aspect ratio stays
+
+<PitchGradationSegment>:
+# Creates one segment of the pitch gradations with 4 lines:
+# ____________________
+#        _____
+#     ___________
+#        _____
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Line:
+                #  ____________________________________________Point 1___________________________________________________   _____________________________________________Point 2__________________________________________________
+                #                   Standard size      Manual sizing        center - ¼, ½ or ¾ the height of a 10-degree                    Standard size       Manual size         Same as in Point 1
+                #                   for ½ unit                              segment                                                         for ½ unit
+            points: root.center_x - (root.height/50) * root.bigLineWidth,   root.center_y,                                  self.center_x + (root.height/50) * root.bigLineWidth,   self.center_y
+            width: root.height/600
+            cap: 'square'
+        Line:
+            points: root.center_x - (root.height/50) * root.smallLineWidth, root.center_y - root.height*(1/(4*root.scale)), self.center_x + (root.height/50) * root.smallLineWidth, self.center_y - root.height*(1/(4*root.scale))
+            width: root.height/600
+            cap: 'square'
+        Line:
+            points: root.center_x - (root.height/50) * root.medLineWidth,   root.center_y - root.height*(2/(4*root.scale)), self.center_x + (root.height/50) * root.medLineWidth,   self.center_y - root.height*(2/(4*root.scale))
+            width: root.height/600
+            cap: 'square'
+        Line:
+            points: root.center_x - (root.height/50) * root.smallLineWidth, root.center_y - root.height*(3/(4*root.scale)), self.center_x + (root.height/50) * root.smallLineWidth, self.center_y - root.height*(3/(4*root.scale))
+            width: root.height/600
+            cap: 'square'
+
+<PitchGradationFull>:
+# Creates a stack of PitchGradationSegments with numbers:
+#             ...
+#  10 ____________________ 10
+#            _____
+#         ___________
+#            _____
+#   0 ____________________ 0
+#            _____
+#         ___________
+#            _____
+# -10 ____________________ -10
+#            _____
+#         ___________
+#            _____
+#             ...
+# 
+# I would much rather use some iterative function for this, but I can't figure out how I would do that.
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        PitchGradationSegment:  # Central segment
+            pos: root.x, root.y - root.pitch * self.height / (10*root.scale)
+
+        PitchGradationSegment:  # Lower segments
+            pos: root.x, root.y - 1 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 2 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 3 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 4 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 5 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 6 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 7 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 8 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y - 9 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+
+        PitchGradationSegment:  # Upper segments
+            pos: root.x, root.y + 1 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 2 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 3 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 4 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 5 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 6 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 7 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 8 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+        PitchGradationSegment:
+            pos: root.x, root.y + 9 * root.height/root.scale - root.pitch * self.height / (10*root.scale)
+
+
+
+        RightLabel:     # Central labels
+            text: '0'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '0'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.pitch * self.height / (10*root.scale)
+            
+
+        RightLabel:     # negative value labels
+            text: '-10'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(1/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-10'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(1/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-20'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(2/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-20'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(2/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-30'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(3/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-30'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(3/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-40'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(4/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-40'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(4/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-50'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(5/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-50'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(5/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-60'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(6/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-60'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(6/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-70'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(7/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-70'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(7/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-80'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(8/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-80'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(8/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '-90'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y - root.height*(9/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '-90'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y - root.height*(9/root.scale) - root.pitch * self.height / (10*root.scale)
+
+
+        RightLabel:     # positive value labels
+            text: '10'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(1/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '10'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(1/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '20'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(2/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '20'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(2/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '30'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(3/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '30'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(3/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '40'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(4/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '40'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(4/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '50'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(5/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '50'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(5/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '60'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(6/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '60'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(6/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '70'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(7/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '70'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(7/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '80'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(8/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '80'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(8/root.scale) - root.pitch * self.height / (10*root.scale)
+
+        RightLabel:
+            text: '90'
+            pos: root.x + (root.height/23) * root.bigLineWidth, root.y + root.height*(9/root.scale) - root.pitch * self.height / (10*root.scale)
+        LeftLabel:
+            text: '90'
+            pos: root.x - (root.height/23) * root.bigLineWidth, root.y + root.height*(9/root.scale) - root.pitch * self.height / (10*root.scale)
+        
+
+
+
+# ------------------------------ Non-rotating components ------------------------------
+
+<RollTriangle>:
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        Image:
+            source: 'images/rolltriangle.png'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.892}      # 0.892 is the value to place the triangle on the edge of the ring
+            size_hint_y: 0.015
+            allow_stretch: True
+
+<SlipIndicator>
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        canvas:
+            Rectangle:
+                size: self.height / 38 , self.height / 130
+                pos: root.x + root.width/2 - (self.height / 38)/2 + root.height * root.slip, root.y + root.height * (0.875)    
+
+
+
+# ==================================== Full Layout ====================================
+<HorizonEverything>:
+    horPitchRoll: horPitchRoll
+    slipindicator: slipindicator
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+
+        HorizonPitchAndRoll:
+            pos: root.pos
+            id: horPitchRoll
+            canvas.before:
+                PushMatrix:
+                Rotate:
+                    angle: root.roll
+                    origin: root.center
+            canvas.after:
+                PopMatrix:
+
+        RollTriangle:
+            pos: root.pos
+        SlipIndicator:
+            pos: root.pos
+            id: slipindicator
+
+        Image:
+            pos: root.pos
+            source: 'images/center2.png'
+            pos_hint: {'center_x': 0.5, 'top': 0.503}
+            size_hint: 999, 0.035        # Big value to prevent being limited by size in x
+            allow_stretch: True         # enable picture to scale above 100%, aspect ratio stays
+
+    # StackLayout:                  # Sliders to set pitch and roll real-time without external input, for testing purposes
+    #     size: root.size
+    #     pos: root.pos
+    #     orientation: 'lr-bt'
+
+    #     Slider:
+    #         id: sliderPitch
+    #         orientation: 'vertical'
+    #         size_hint: None, 1
+    #         min: -90
+    #         max: 90
+    #         on_touch_move: root.updatePitch(sliderPitch.value)
+    #         on_touch_down: root.updatePitch(sliderPitch.value)
+    #         on_touch_up: root.updatePitch(sliderPitch.value)
+
+    #     Slider:
+    #         id: sliderRoll
+    #         size_hint: 0.4, None
+    #         min: -180
+    #         max: 180
+    #         on_touch_move: root.updateRoll(sliderRoll.value)
+    #         on_touch_down: root.updateRoll(sliderRoll.value)
+    #         on_touch_up: root.updateRoll(sliderRoll.value)
+
+    #     Slider:
+    #         id: sliderSlip
+    #         size_hint: 0.4, None
+    #         min: -0.015
+    #         max: 0.015
+    #         on_touch_move: root.updateSlip(sliderSlip.value)
+    #         on_touch_down: root.updateSlip(sliderSlip.value)
+    #         on_touch_up: root.updateSlip(sliderSlip.value)
