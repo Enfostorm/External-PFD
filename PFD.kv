@@ -3,6 +3,8 @@
 <PFD>:
     horizon: horizon
     compass: compass
+    bugselectors: bugselectors
+
     BoxLayout:                          # Artificial horizon
         orientation: 'vertical'
         size: root.size
@@ -12,7 +14,7 @@
             size: root.size
             pos: root.pos
 
-        BoxLayout:                      # Center row of displays
+        BoxLayout:                      # Center row of displays, TODO maybe put them in a separate widget??
             size_hint_y: 0.15
             pos: root.pos
             orientation: 'horizontal'
@@ -23,7 +25,9 @@
             BugButton:
             BugButton:
 
-        CompassEverything:
-            id: compass
-            size: root.size
-            pos: root.pos
+        FloatLayout:
+
+            CompassEverything:
+                id: compass
+            BugSelectors:
+                id: bugselectors

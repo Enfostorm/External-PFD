@@ -1,11 +1,11 @@
 #: kivy 2.0.0
 # ==============Standaardwaarden voor een label==============
-<ButtonLabel@Label>
+<ButtonLabel2@Label>
     font_size: self.height * 0.5    # Tekstgrootte schaalt automatisch mee met de hoogte van de knop
     text_size: self.size
     halign: 'center'                # Deze en de volgende twee lijnen zorgen voor text wrapping
     valign: 'middle'
-    font_name: 'B612-regular'
+    font_name: 'fonts/B612-Regular.ttf'
 
 # ==============Main lay-out==============
 <BugButton>
@@ -14,11 +14,12 @@
     Button:
         size: root.size
         pos: root.pos
+        on_press: print('GHAAAAAA')
     BoxLayout:
         orientation: 'vertical'
         size: root.size
         pos: root.pos
-        ButtonLabel:
+        ButtonLabel2:
             id: functionLabel
             text: 'unassigned'      # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
         NumberDisplay:
@@ -33,7 +34,7 @@
         Rectangle:                              # Zwarte rechthoek achter de tekst
             size: self.width*3/4, self.height*3/4
             pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
-    ButtonLabel:
+    ButtonLabel2:
         id: numberLabel
         text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
         color: 0, 1, 0

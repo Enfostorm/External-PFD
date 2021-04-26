@@ -1,11 +1,13 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.button import ButtonBehavior
 from kivy.properties import ObjectProperty
 
 
-class BugButton(Widget):
+class BugButton(ButtonBehavior, Widget):
     functionLabel = ObjectProperty()
     numberDisplay = ObjectProperty()
+    button = ObjectProperty()
 
     def __init__(self, **kwargs):
         super(BugButton, self).__init__(**kwargs)
@@ -17,6 +19,9 @@ class BugButton(Widget):
 
     def setValue(self, value, unit):        # Past de onderste tekstwaarde aan met een spatie tussen de twee.
         self.numberDisplay.numberLabel.text = f'{value:.0f} {unit}' # Waarden weergeven met een f string (zet er hier een spatie tussen)
+
+    def returnButton(self):
+        return self.button
 
 class NumberDisplay(Widget):
     numberLabel = ObjectProperty()
