@@ -1,0 +1,186 @@
+#: kivy 2.0.0
+
+<ButtonLabel@Label>
+    font_size: self.height * 0.5    # Tekstgrootte schaalt automatisch mee met de hoogte van de knop
+    text_size: self.size
+    halign: 'center'                # Deze en de volgende twee lijnen zorgen voor text wrapping
+    valign: 'middle'
+    font_name: 'fonts/B612-Regular.ttf'
+
+# ===========================================================================================================
+# Dit stuk heeft zeer slechte code, maar Kivy wou de knoppen niet laten registreren, ook niet met
+#    ButtonBehavior ingeschakeld op de Widget. https://kivy.org/doc/stable/api-kivy.uix.behaviors.button.html
+# Knoppen zijn 4x hetzelfde, maar aparte klasses om verwijzing uit andere file werkend te krijgen.
+
+<SpeedButton>
+    functionLabel: functionLabel
+    numberDisplay: numberDisplay
+    Button:
+        size: root.size
+        pos: root.pos
+        on_release: root.parent.parent.speedActive()
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+        pos: root.pos
+        ButtonLabel:
+            id: functionLabel
+            text: 'Speed'      # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        NumberDisplay:
+            pos: root.pos
+            id: numberDisplay
+
+<NumberDisplay>
+    numberLabel: numberLabel
+    canvas:
+        Color:
+            rgb: 0, 0, 0
+        Rectangle:                              # Zwarte rechthoek achter de tekst
+            size: self.width*3/4, self.height*3/4
+            pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
+    ButtonLabel:
+        id: numberLabel
+        text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        color: 0, 1, 0
+        font_size: self.height * 0.6
+        size: root.width*3/4, root.height*3/4               # Waarden gekozen op basis van wat er goed uitzag
+        pos: root.x + root.width/8, root.y + root.height/6 + root.height/20
+        halign: 'right'
+        padding: root.height/10, root.height/10
+
+<AltitudeButton>:
+    functionLabel: functionLabel
+    numberDisplay: numberDisplay
+    Button:
+        size: root.size
+        pos: root.pos
+        on_release: root.parent.parent.altActive()
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+        pos: root.pos
+        ButtonLabel:
+            id: functionLabel
+            text: 'Altitude'      # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        NumberDisplay:
+            pos: root.pos
+            id: numberDisplay
+
+<NumberDisplay>
+    numberLabel: numberLabel
+    canvas:
+        Color:
+            rgb: 0, 0, 0
+        Rectangle:                              # Zwarte rechthoek achter de tekst
+            size: self.width*3/4, self.height*3/4
+            pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
+    ButtonLabel:
+        id: numberLabel
+        text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        color: 0, 1, 0
+        font_size: self.height * 0.6
+        size: root.width*3/4, root.height*3/4               # Waarden gekozen op basis van wat er goed uitzag
+        pos: root.x + root.width/8, root.y + root.height/6 + root.height/20
+        halign: 'right'
+        padding: root.height/10, root.height/10
+
+<VSIButton>:
+    functionLabel: functionLabel
+    numberDisplay: numberDisplay
+    Button:
+        size: root.size
+        pos: root.pos
+        on_release: root.parent.parent.vsiActive()
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+        pos: root.pos
+        ButtonLabel:
+            id: functionLabel
+            text: 'VSI'      # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        NumberDisplay:
+            pos: root.pos
+            id: numberDisplay
+
+<NumberDisplay>
+    numberLabel: numberLabel
+    canvas:
+        Color:
+            rgb: 0, 0, 0
+        Rectangle:                              # Zwarte rechthoek achter de tekst
+            size: self.width*3/4, self.height*3/4
+            pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
+    ButtonLabel:
+        id: numberLabel
+        text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        color: 0, 1, 0
+        font_size: self.height * 0.6
+        size: root.width*3/4, root.height*3/4               # Waarden gekozen op basis van wat er goed uitzag
+        pos: root.x + root.width/8, root.y + root.height/6 + root.height/20
+        halign: 'right'
+        padding: root.height/10, root.height/10
+
+<HeadingButton>:
+    functionLabel: functionLabel
+    numberDisplay: numberDisplay
+    Button:
+        size: root.size
+        pos: root.pos
+        on_release: root.parent.parent.headingActive()
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+        pos: root.pos
+        ButtonLabel:
+            id: functionLabel
+            text: 'Heading'      # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        NumberDisplay:
+            pos: root.pos
+            id: numberDisplay
+
+<NumberDisplay>
+    numberLabel: numberLabel
+    canvas:
+        Color:
+            rgb: 0, 0, 0
+        Rectangle:                              # Zwarte rechthoek achter de tekst
+            size: self.width*3/4, self.height*3/4
+            pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
+    ButtonLabel:
+        id: numberLabel
+        text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
+        color: 0, 1, 0
+        font_size: self.height * 0.6
+        size: root.width*3/4, root.height*3/4               # Waarden gekozen op basis van wat er goed uitzag
+        pos: root.x + root.width/8, root.y + root.height/6 + root.height/20
+        halign: 'right'
+        padding: root.height/10, root.height/10
+
+# ===========================================================================================================
+<BugSelectors>:
+    headingButton: headingButton
+    speedButton: speedButton
+    altButton: altButton
+    vsiButton: vsiButton
+
+    StackLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'bt-lr'
+        HeadingButton:
+            size_hint: 0.2, 0.2
+            id: headingButton
+        SpeedButton:
+            size_hint: 0.2, 0.2
+            id: speedButton
+
+    StackLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'bt-rl'
+        AltitudeButton:
+            size_hint: 0.2, 0.2
+            id: altButton
+        VSIButton:
+            size_hint: 0.2, 0.2
+            id: vsiButton
