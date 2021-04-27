@@ -4,14 +4,10 @@
 Klasse die bij een overgang van de staat een callback kan aanroepen, en zijn waarde teruggeeft.
 
 12/3/2021 PvdT
-pull_up_down veranderd naar UPD_UP om COM met GND te kunnen verbinden, minder kans op schade
+pull_up_down veranderd naar PUD_UP om COM met GND te kunnen verbinden, minder kans op schade
     bij foute verbinding (5V op GPIO)
 '''
 
-'''
-00 --> 01    R1
-11 --> 10    R1
-'''
 import RPi.GPIO as GPIO
 
 class Encoder:
@@ -32,6 +28,15 @@ class Encoder:
         p1 = GPIO.input(self.leftPin)
         p2 = GPIO.input(self.rightPin)
         newState = "{}{}".format(p1, p2)
+        '''
+        Steady states of the encoders: 00 and 11
+        CW (R) turn:
+            00 -> 01 -> 11
+            11 -> 10 -> 00
+        CCW (L) turn:
+            00 -> 10 -> 11
+            11 -> 01 -> 00
+        '''
         
         if self.state == '00':
             if newState == '01': # halve klik naar rechts

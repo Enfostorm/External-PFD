@@ -59,13 +59,6 @@ class BugSelectors(Widget):
         self.hdgORspd = 'hdg'
         self.altORvsi = 'alt'
 
-    def setStandardFunctionLabels(self, *arg):
-        self.setHeadingFunction('Heading')
-        self.setSpeedFunction('Speed')
-        self.setAltFunction('ALT')
-        self.setVsiFunction('VSI')
-
-
     def headingActive(self):
         self.hdgORspd = 'hdg'
     def speedActive(self):
