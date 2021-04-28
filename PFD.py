@@ -65,7 +65,7 @@ class PfdApp(App):
 
         self.headingRate = 0    # [°/s]
         self.vSpeed = 0         #
-        self.deltaSpeed = 0     #        # Change in speed / s
+        self.deltaSpeed = 0     #        # Change in speed / s (acceleration)
 
         self.headingBug = 0     # [°]    # Bugvalues
         self.altBug = 0         # [altitudeUnit]
