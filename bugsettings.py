@@ -59,11 +59,11 @@ class BugSelectors(Widget):
         self.hdgORspd = 'hdg'
         self.altORvsi = 'alt'
 
-    def updateValues(self, headingBug, speedBug, altBug, vsiBug, altitudeUnit, speedUnit, vSpeedUnit):
-        self.setHeadingValue(headingBug)
-        self.setSpeedValue(speedBug, speedUnit)
-        self.setAltValue(altBug, altitudeUnit)
-        self.setVsiValue(vsiBug, vSpeedUnit)
+    def updateValues(self, headingValue, speedValue, altValue, vsiValue, speedUnit, altUnit, vsiUnit):
+        self.setHeadingValue(headingValue)
+        self.setSpeedValue(speedValue, speedUnit)
+        self.setAltValue(altValue, altUnit)
+        self.setVsiValue(vsiValue, vsiUnit)
 
     def headingActive(self):
         self.hdgORspd = 'hdg'
