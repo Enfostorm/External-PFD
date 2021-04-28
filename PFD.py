@@ -24,9 +24,10 @@ class PFD(Widget):
     compass = ObjectProperty()
     bugselectors = ObjectProperty()
 
-    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack):
+    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
         self.compass.update(heading, headingBug)       # Heading [deg], HeadingBug [deg]
+        self.bugselectors.updateValues(headingBug, spdBug, altBug, vsiBug, speedUnit, altitudeUnit, vSpeedUnit)
 
 # ========================================================================================================================
 # MAIN APP LOGIC BEGINS HERE
@@ -98,7 +99,9 @@ class PfdApp(App):
         self.pfd.update(self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
                         self.headingRate, self.vSpeed, self.deltaSpeed,
                         self.headingBug, self.altBug, self.spdBug, self.vsiBug,
-                        self.groundTrack)
+                        self.groundTrack,
+                        self.altitudeUnit, self.speedUnit, self.vSpeedUnit)
+
     # ________________________________________________________________________________________________
     # Serial data methods
 
