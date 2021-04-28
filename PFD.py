@@ -82,8 +82,8 @@ class PfdApp(App):
         # --------------------------------------------------------------------------------------------
 
         self.pfd = PFD()
-        self.setBugButtonLabels()
         self.openPort()
+        Clock.schedule_once(self.setBugButtonLabels())
         Clock.schedule_interval(self.updateDisplayElements, 1.0 / 60.0)
         threading.Thread(target=self.serialReadValuesThread, daemon=True).start()        # Separate thread to read the serial input. Daemon makes sure the thread closes if the main program closes
         Clock.schedule_interval(self.serialWriteValues, 1/30)
