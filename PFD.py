@@ -24,9 +24,10 @@ class PFD(Widget):
     compass = ObjectProperty()
     bugselectors = ObjectProperty()
 
-    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack):
+    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
         self.compass.update(heading, headingBug)       # Heading [deg], HeadingBug [deg]
+        self.bugselectors.updateValues(headingBug, altBug, spdBug, vsiBug, altitudeUnit, speedUnit, vSpeedUnit)
 
 # ========================================================================================================================
 # MAIN APP LOGIC BEGINS HERE
@@ -83,9 +84,9 @@ class PfdApp(App):
         self.pfd = PFD()
         self.setBugButtonLabels()
         self.openPort()
-        Clock.schedule_interval(self.updateDisplayElements, 1/60)
+        Clock.schedule_interval(self.updateDisplayElements, 1.0 / 60.0)
         threading.Thread(target=self.serialReadValuesThread, daemon=True).start()        # Separate thread to read the serial input. Daemon makes sure the thread closes if the main program closes
-        Clock.schedule_interval(self.serialWriteValues, 1/60)
+        Clock.schedule_interval(self.serialWriteValues, 1/30)
         return self.pfd
 
     def setBugButtonLabels(self):
@@ -98,7 +99,8 @@ class PfdApp(App):
         self.pfd.update(self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
                         self.headingRate, self.vSpeed, self.deltaSpeed,
                         self.headingBug, self.altBug, self.spdBug, self.vsiBug,
-                        self.groundTrack)
+                        self.groundTrack,
+                        self.altitudeUnit, self.speedUnit, self.vSpeedUnit)
     # ________________________________________________________________________________________________
     # Serial data methods
 
@@ -118,9 +120,9 @@ class PfdApp(App):
     def serialReadValuesThread(self):
         # Only run this method in a separate thread or your program will get stuck in an infinite loop!!
         expected_length = 14
-        print('readThread started')
         while True:
             try:
+                print('beginning serial read')
                 serRead = self.ser.readline().decode('utf-8')       # Read line, make string ('utf-8')
                 list_Str = serRead.split(';')                       # Put values in list
 

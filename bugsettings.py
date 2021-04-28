@@ -59,6 +59,12 @@ class BugSelectors(Widget):
         self.hdgORspd = 'hdg'
         self.altORvsi = 'alt'
 
+    def updateValues(self, headingBug, speedBug, altBug, vsiBug, altitudeUnit, speedUnit, vSpeedUnit):
+        self.setHeadingValue(headingBug)
+        self.setSpeedValue(speedBug, speedUnit)
+        self.setAltValue(altBug, altitudeUnit)
+        self.setVsiValue(vsiBug, vSpeedUnit)
+
     def headingActive(self):
         self.hdgORspd = 'hdg'
     def speedActive(self):
@@ -77,8 +83,8 @@ class BugSelectors(Widget):
     def setVsiFunction(self, func):
         self.vsiButton.setFunctionLabel(func)
 
-    def setHeadingValue(self, val, unit):
-        self.headingButton.setValue(val, unit)
+    def setHeadingValue(self, val):
+        self.headingButton.setValue(val, '°')
     def setSpeedValue(self, val, unit):
         self.speedButton.setValue(val, unit)
     def setAltValue(self, val, unit):
