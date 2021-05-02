@@ -10,42 +10,61 @@ class NumberDisplay(Widget):
 class SpeedButton(Widget):
     functionLabel = ObjectProperty()
     numberDisplay = ObjectProperty()
+    button = ObjectProperty()
 
     def setFunctionLabel(self, newLabel):
         self.functionLabel.text = newLabel
 
     def setValue(self, value, unit):        # Past de onderste tekstwaarde aan met een spatie tussen de twee.
         self.numberDisplay.numberLabel.text = f'{value:.0f} {unit}' # Waarden weergeven met een f string (zet er hier een spatie tussen)
+
+    def setState(self, state):
+        self.button.state = state
+
 
 class AltitudeButton(Widget):
     functionLabel = ObjectProperty()
     numberDisplay = ObjectProperty()
+    button = ObjectProperty()
 
     def setFunctionLabel(self, newLabel):
         self.functionLabel.text = newLabel
 
     def setValue(self, value, unit):        # Past de onderste tekstwaarde aan met een spatie tussen de twee.
         self.numberDisplay.numberLabel.text = f'{value:.0f} {unit}' # Waarden weergeven met een f string (zet er hier een spatie tussen)
+
+    def setState(self, state):
+        self.button.state = state
+
 
 class VSIButton(Widget):
     functionLabel = ObjectProperty()
     numberDisplay = ObjectProperty()
+    button = ObjectProperty()
 
     def setFunctionLabel(self, newLabel):
         self.functionLabel.text = newLabel
 
     def setValue(self, value, unit):        # Past de onderste tekstwaarde aan met een spatie tussen de twee.
         self.numberDisplay.numberLabel.text = f'{value:.0f} {unit}' # Waarden weergeven met een f string (zet er hier een spatie tussen)
+
+    def setState(self, state):
+        self.button.state = state
+
 
 class HeadingButton(Widget):
     functionLabel = ObjectProperty()
     numberDisplay = ObjectProperty()
+    button = ObjectProperty()
 
     def setFunctionLabel(self, newLabel):
         self.functionLabel.text = newLabel
 
     def setValue(self, value, unit):        # Past de onderste tekstwaarde aan met een spatie tussen de twee.
         self.numberDisplay.numberLabel.text = f'{value:.0f} {unit}' # Waarden weergeven met een f string (zet er hier een spatie tussen)
+
+    def setState(self, state):
+        self.button.state = state
 
 
 class BugSelectors(Widget):
@@ -58,6 +77,8 @@ class BugSelectors(Widget):
         super(BugSelectors, self).__init__(**kwargs)
         self.hdgORspd = 'hdg'
         self.altORvsi = 'alt'
+        self.headingButton.setState('down')
+        self.altButton.setState('down')
 
     def updateValues(self, headingValue, speedValue, altValue, vsiValue, speedUnit, altUnit, vsiUnit):
         self.setHeadingValue(headingValue)
@@ -67,12 +88,20 @@ class BugSelectors(Widget):
 
     def headingActive(self):
         self.hdgORspd = 'hdg'
+        self.speedButton.setState('normal')
+        self.headingButton.setState('down')
     def speedActive(self):
         self.hdgORspd = 'spd'
+        self.speedButton.setState('down')
+        self.headingButton.setState('normal')
     def altActive(self):
         self.altORvsi = 'alt'
+        self.altButton.setState('down')
+        self.vsiButton.setState('normal')
     def vsiActive(self):
         self.altORvsi = 'vsi'
+        self.altButton.setState('normal')
+        self.vsiButton.setState('down')
 
     def setHeadingFunction(self, func):
         self.headingButton.setFunctionLabel(func)

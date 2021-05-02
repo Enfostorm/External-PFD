@@ -15,7 +15,9 @@
 <SpeedButton>
     functionLabel: functionLabel
     numberDisplay: numberDisplay
+    button: button
     Button:
+        id: button
         size: root.size
         pos: root.pos
         on_release: root.parent.parent.speedActive()
@@ -30,28 +32,13 @@
             pos: root.pos
             id: numberDisplay
 
-<NumberDisplay>
-    numberLabel: numberLabel
-    canvas:
-        Color:
-            rgb: 0, 0, 0
-        Rectangle:                              # Zwarte rechthoek achter de tekst
-            size: self.width*3/4, self.height*3/4
-            pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
-    ButtonLabel:
-        id: numberLabel
-        text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
-        color: 0, 1, 0
-        font_size: self.height * 0.6
-        size: root.width*3/4, root.height*3/4               # Waarden gekozen op basis van wat er goed uitzag
-        pos: root.x + root.width/8, root.y + root.height/6 + root.height/20
-        halign: 'right'
-        padding: root.height/10, root.height/10
 
 <AltitudeButton>:
     functionLabel: functionLabel
     numberDisplay: numberDisplay
+    button: button
     Button:
+        id: button
         size: root.size
         pos: root.pos
         on_release: root.parent.parent.altActive()
@@ -66,28 +53,13 @@
             pos: root.pos
             id: numberDisplay
 
-<NumberDisplay>
-    numberLabel: numberLabel
-    canvas:
-        Color:
-            rgb: 0, 0, 0
-        Rectangle:                              # Zwarte rechthoek achter de tekst
-            size: self.width*3/4, self.height*3/4
-            pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
-    ButtonLabel:
-        id: numberLabel
-        text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
-        color: 0, 1, 0
-        font_size: self.height * 0.6
-        size: root.width*3/4, root.height*3/4               # Waarden gekozen op basis van wat er goed uitzag
-        pos: root.x + root.width/8, root.y + root.height/6 + root.height/20
-        halign: 'right'
-        padding: root.height/10, root.height/10
 
 <VSIButton>:
     functionLabel: functionLabel
     numberDisplay: numberDisplay
+    button: button
     Button:
+        id: button
         size: root.size
         pos: root.pos
         on_release: root.parent.parent.vsiActive()
@@ -102,28 +74,12 @@
             pos: root.pos
             id: numberDisplay
 
-<NumberDisplay>
-    numberLabel: numberLabel
-    canvas:
-        Color:
-            rgb: 0, 0, 0
-        Rectangle:                              # Zwarte rechthoek achter de tekst
-            size: self.width*3/4, self.height*3/4
-            pos: root.x + self.width/8, root.y + self.height/6 + self.height/20
-    ButtonLabel:
-        id: numberLabel
-        text: 'unassigned'           # Unassigned verschijnt wanneer de labels niet geconfigureerd zijn
-        color: 0, 1, 0
-        font_size: self.height * 0.6
-        size: root.width*3/4, root.height*3/4               # Waarden gekozen op basis van wat er goed uitzag
-        pos: root.x + root.width/8, root.y + root.height/6 + root.height/20
-        halign: 'right'
-        padding: root.height/10, root.height/10
-
 <HeadingButton>:
     functionLabel: functionLabel
     numberDisplay: numberDisplay
+    button: button
     Button:
+        id: button
         size: root.size
         pos: root.pos
         on_release: root.parent.parent.headingActive()
