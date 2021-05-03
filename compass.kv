@@ -1,17 +1,16 @@
 #: kivy 2.0.0
 
 # ==============Standaardwaarden voor een label==============
-<ComLabel>
-    font_size: self.height * 0.5    # Tekstgrootte schaalt automatisch mee met de hoogte van de knop
-    text_size: self.size
-    halign: 'center'                # Deze en de volgende twee lijnen zorgen voor text wrapping
-    valign: 'middle'
+<ComLabel@Label>
+    font_size: root.height / 3    # Tekstgrootte schaalt automatisch
+    # text_size: self.size
+    # halign: 'center'                # Deze en de volgende twee lijnen zorgen voor text wrapping
+    # valign: 'middle'
     font_name: 'fonts/B612-Regular.ttf'
 
 
 # ==============Compass components==========================
 <Compass>:
-
     FloatLayout:
         size: root.size
         Image:
@@ -21,18 +20,16 @@
             allow_stretch: True
 
 <HeadingBug>:
-
     FloatLayout:
         size: root.size
         Image:
             source: 'images/bug.png'
             size: root.size
             pos_hint: {'center_x': 0.5, 'center_y': 0.9}
-            size_hint: 999, 0.03
+            size_hint: 999, 0.025
             allow_stretch: True
 
 <Airplane>:
-
     FloatLayout:
         size: root.size
         Image:
@@ -42,17 +39,105 @@
             size_hint: 999, 0.1
             allow_stretch: True
 
-<Pointer>:
+<HeadingRate>:
+    canvas:
+        Color:
+            rgb: 212/255, 196/255, 15/255
+        Ellipse:        # Coloured pie-shaped ellipse to indicate Rate of Turn
+            size: root.height * 0.85, root.height * 0.85
+            pos: root.center_x - root.height * 0.85/2, root.center_y - root.height * 0.85/2
+            angle_start: 0
+            angle_end: root.headingRate
+
+        
+        Color:
+            rgb: 1, 1, 1
+
+        Ellipse:
+            size: root.height * 0.82, root.height * 0.82
+            pos: root.center_x - root.height * 0.82/2, root.center_y - root.height * 0.82/2
+            angle_start: -2 * root.degPerIncrement
+            angle_end: 2 * root.degPerIncrement
+
+        PushMatrix
+        Rotate:         # Five lines for the divisions
+            angle: 2 * root.degPerIncrement     # rate 2
+            origin: root.center
+        Line:
+            points: root.center_x, root.center_y, root.center_x, root.center_y + root.height * 0.85/2
+            width: 1.5
+        PopMatrix
+        PushMatrix
+        Rotate:
+            angle: root.degPerIncrement         # rate 1
+            origin: root.center
+        Line:
+            points: root.center_x, root.center_y, root.center_x, root.center_y + root.height * 0.85/2
+            width: 1.5
+        PopMatrix
+        PushMatrix
+        Rotate:
+            angle: -root.degPerIncrement        # rate -1
+            origin: root.center
+        Line:
+            points: root.center_x, root.center_y, root.center_x, root.center_y + root.height * 0.85/2
+            width: 1.5
+        PopMatrix
+        PushMatrix
+        Rotate:
+            angle: -2 * root.degPerIncrement     # rate -2
+            origin: root.center
+        Line:
+            points: root.center_x, root.center_y, root.center_x, root.center_y + root.height * 0.85/2
+            width: 1.5
+        PopMatrix
+
+
+
+        Color:  # Black covering ellipse
+            rgb: 0, 0, 0
+        Ellipse:
+            size: root.height * 0.81, root.height * 0.81
+            pos: root.center_x - root.height * 0.81/2, root.center_y - root.height * 0.81/2
+
+
+
+<HeadingDisplay>:
+    headingLabel: headingLabel
+    # canvas:
+    #     Line:
+    #         width: 2
+    #         points: root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p1x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p1y, root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p2x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p2y, root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p3x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p3y, root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p4x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p4y, root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p5x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p5y, root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p6x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p6y, root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p7x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p7y, root.width * root.pos_hint_x + (root.height/600) * root.scale * root.p8x, root.height * root.pos_hint_y + (root.height/600) * root.scale * root.p8y
 
     FloatLayout:
         size: root.size
+        pos: root.pos
         Image:
-            source: 'images/rolltriangle.png'
-            size_hint: 0.05 , 0.05
-            pos_hint: {'center_x': 0.5, 'center_y': 0.05}
+            source: 'images/headingDisplay.png'
+            pos_hint: {'center_x': 0.5, 'y': 0.9}
+            size_hint: 999, 0.08
             allow_stretch: True
+        Label:
+            id: headingLabel
+            pos_hint: {'center_x': 0.5, 'center_y': 0.95}
+            text_size: root.height/12, root.height/15
+            halign: 'right'
+            valign: 'middle'
+            text: '360°'
+            font_name: 'fonts/B612-Regular.ttf'
+            font_size: root.height/30
     
+<GroundTrack>:
+    canvas:
+        Line:
+            points: root.x + root.width/2, root.y + root.height/2 + root.height/15, root.x + root.width/2, root.y + root.height * 0.82
+            dash_offset: 10
+            dash_length: 10
+
+# ========================================================================================================
 <CompassEverything>:
+    headingDisp: headingDisp
+    headingRate: headingRate
     canvas:
         Color:
             rgb: 0, 0, 0
@@ -61,7 +146,8 @@
 
     FloatLayout:
         size: root.size
-
+        HeadingRate:
+            id: headingRate
         Compass:
             id: Compass
             canvas.before:
@@ -72,26 +158,28 @@
             canvas.after:
                 PopMatrix:
 
+        Airplane:
+
+        GroundTrack:
+            canvas.before:
+                PushMatrix:
+                Rotate:
+                    angle: -root.groundTrack
+                    origin: root.center
+            canvas.after:
+                PopMatrix:
+
+        HeadingDisplay:
+            id: headingDisp
+            pos: root.pos
+
+
         HeadingBug:
             id: HeadingBug
             canvas.before:
                 PushMatrix:
                 Rotate:
-                    angle: root.headingBug
+                    angle: root.heading - root.headingBug
                     origin: root.center
             canvas.after:
-                PopMatrix:
-
-
-        Airplane:
-            id:Airplane
-
-        Pointer:
-            id:Pointer
-            canvas.before:
-                PushMatrix:
-                Rotate:
-                    angle: 180
-                    origin: Pointer.center
-            canvas.after:
-                PopMatrix:
+                PopMatrix: 
