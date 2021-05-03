@@ -77,8 +77,8 @@ class BugSelectors(Widget):
         super(BugSelectors, self).__init__(**kwargs)
         self.hdgORspd = 'hdg'
         self.altORvsi = 'alt'
-        self.headingButton.setState('down')
-        self.altButton.setState('down')
+        # self.headingButton.setState('down')
+        # self.altButton.setState('down')
 
     def updateValues(self, headingValue, speedValue, altValue, vsiValue, speedUnit, altUnit, vsiUnit):
         self.setHeadingValue(headingValue)
