@@ -98,7 +98,7 @@ class CompassEverything(Widget):           # Full layout
 
     def setHeading(self, heading):
         self.heading = heading
-        self.headingDisp.setHeading(heading)
+        self.headingDisp.setHeading(round(heading))
     def setHeadingBug(self, headingBug):
         self.headingBug = headingBug
     def setHeadingRate(self, headingRate):

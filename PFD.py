@@ -26,7 +26,7 @@ class PFD(Widget):
 
     def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
-        self.compass.update(heading, headingBug, headingRate)       # Heading [deg], HeadingBug [deg]
+        self.compass.update(heading, headingBug, headingRate, groundTrack)       # Heading [deg], HeadingBug [deg]
         self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit, vSpeedUnit)
 
 # ========================================================================================================================
@@ -94,9 +94,6 @@ class PfdApp(App):
         # --------------------------------------------------------------------------------------------
 
         self.pfd = PFD()
-        Clock.schedule_once(self.init_delay)
-
-    def init_delay(self, dt):
         self.setBugButtonLabels()
         self.openPort()
         Clock.schedule_interval(self.updateDisplayElements, 1/60)
@@ -297,13 +294,13 @@ class PfdApp(App):
                 elif self.pfd.bugselectors.altORvsi == 'vsi':
                     self.vsiBugTemp += self.RcoarseInc
 
-    def confirmBugsLeft(self):
+    def confirmBugsLeft(self, dt):
         if self.pfd.bugselectors.hdgORspd == 'hdg':
             self.headingBugOut = self.headingBugTemp
         if self.pfd.bugselectors.hdgORspd == 'spd':
             self.spdBugOut = self.spdBugTemp
 
-    def confirmBugsRight(self):
+    def confirmBugsRight(self, dt):
         if self.pfd.bugselectors.altORvsi == 'alt':
             self.altBugOut = self.altBugTemp
         if self.pfd.bugselectors.altORvsi == 'vsi':

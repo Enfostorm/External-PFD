@@ -20,6 +20,7 @@
         id: button
         size: root.size
         pos: root.pos
+        on_press: root.parent.parent.speedActive()      # Executes on press and on release so only one button is selected at a time
         on_release: root.parent.parent.speedActive()
     BoxLayout:
         orientation: 'vertical'
@@ -41,6 +42,7 @@
         id: button
         size: root.size
         pos: root.pos
+        on_press: root.parent.parent.altActive()
         on_release: root.parent.parent.altActive()
     BoxLayout:
         orientation: 'vertical'
@@ -62,6 +64,7 @@
         id: button
         size: root.size
         pos: root.pos
+        on_press: root.parent.parent.vsiActive()
         on_release: root.parent.parent.vsiActive()
     BoxLayout:
         orientation: 'vertical'
@@ -82,6 +85,7 @@
         id: button
         size: root.size
         pos: root.pos
+        on_press: root.parent.parent.headingActive()
         on_release: root.parent.parent.headingActive()
     BoxLayout:
         orientation: 'vertical'
