@@ -16,7 +16,7 @@ class Horizon(Widget):      # Blue and brown rectangles as background
 class HorizonMask(FloatLayout):
     pitch = Horizon.pitch
     scale = Horizon.scale
-    tightness = 0.13     # Width of the transparent band in the center. Smaller = wider gap
+    tightness = 0.15     # Width of the transparent band in the center. Smaller = wider gap
 
 class PitchGradationSegment(Widget):
     scale = Horizon.scale       # amount of 10-deg increments that would fit in the full vertical space

@@ -44,6 +44,7 @@
         pos: root.pos
         on_press: root.parent.parent.altActive()
         on_release: root.parent.parent.altActive()
+        state: 'down'
     BoxLayout:
         orientation: 'vertical'
         size: root.size
@@ -87,6 +88,7 @@
         pos: root.pos
         on_press: root.parent.parent.headingActive()
         on_release: root.parent.parent.headingActive()
+        state: 'down'
     BoxLayout:
         orientation: 'vertical'
         size: root.size

@@ -14,15 +14,27 @@
             size: root.size
             pos: root.pos
 
-        BoxLayout:                      # Center row of displays, TODO maybe put them in a separate widget??
+        FloatLayout:
             size_hint_y: 0.13
-            pos: root.pos
-            orientation: 'horizontal'
-            BugButton:
-            BugButton:
-            BugButton:
-            BugButton:
-            BugButton:
+            Widget:
+                pos: self.parent.pos
+                canvas:
+                    Color:
+                        rgba: 0, 0, 0, 0
+                    Rectangle:
+                        size: self.parent.size
+                        pos: self.parent.pos
+
+            BoxLayout:                      # Center row of displays, TODO maybe put them in a separate widget??
+                pos: self.parent.pos
+                orientation: 'horizontal'
+                BugButton:
+                BugButton:
+                BugButton:
+                BugButton:
+                BugButton:
+
+
 
         FloatLayout:
 
