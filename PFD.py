@@ -37,6 +37,7 @@ class PfdApp(App):
     def build(self):
         Config.set('graphics', 'fullscreen', 'auto')
         Config.set('graphics', 'show_cursor', '0')
+        Config.set('graphics', 'multisamples', '0')
         """
         Runs once, sets up the variables and the app
         """
@@ -59,6 +60,8 @@ class PfdApp(App):
         GPIO.add_event_detect(RBTN, GPIO.RISING, callback = self.confirmBugsRight)
 
         self.serialDebug = False     # Print the incoming serial datastream in console
+        self.serialReadSuccess = False
+        self.serialReadErrorMessage = ''
         # --------------------------------------------------------------------------------------------
         self.pitch = 0          # [°]        # Setup variables for the app
         self.roll = 0           # [°]
@@ -132,15 +135,15 @@ class PfdApp(App):
             print('failed to find suitable port')
     
     def serialReadValuesThread(self):
-        # Only run this method in a separate thread or your program will get stuck in an infinite loop!!
-        expected_length = 14
+        # !!!Only run this method in a separate thread or your program will get stuck in an infinite loop blocking all other methods!!!
+        expected_length = 14    # Amount of parameters that get transmitted
         print('readThread started')
         while True:
             try:
                 serRead = self.ser.readline().decode('utf-8')       # Read line, make string ('utf-8')
                 list_Str = serRead.split(';')                       # Put values in list
 
-                if len(list_Str) == expected_length:
+                if len(list_Str) == expected_length:                                                # Correct path
                     self.pitch = float(list_Str[0])                            # Update app values
                     self.roll = float(list_Str[1])
                     self.slip = float(list_Str[2])
@@ -158,30 +161,44 @@ class PfdApp(App):
                     self.vsiBug = float(list_Str[12])
 
                     self.groundTrack = float(list_Str[13])
-                if len(list_Str) < expected_length:
+
+                    self.serialReadSuccess = True
+
+
+                if len(list_Str) < expected_length:                                                 # Path if too little values are received
+                    if 'DEVICE' in serRead:
+                        self.answerQuery()
+                        print('Answered query from main device.')
                     print(f'Less than {expected_length} values received: {serRead}')
-                if len(list_Str) > expected_length:
+                    self.serialReadSuccess = False
+                    self.serialReadErrorMessage = f'Not enough variables in the read line: expected {expected_length} values but received {len(list_str).}'
+
+                if len(list_Str) > expected_length:                                                 # Path if more values than expected are received.
                     print(f'More than {expected_length} values received: {serRead}')
+                    self.serialReadSuccess = False
+                    self.serialReadErrorMessage = f'Too much variables in the read line: expected {expected_length} values but received {len(list_str).}'
+
                     
                 if self.serialDebug:
-                    print("-----------------")
-                    print("Serial input   : ", serRead)
-                    print("Serial List    : ", list_Str)
-                    print("-----------------")
-                    print("Pitch          : ", self.pitch)
-                    print("Roll           : ", self.roll)
-                    print("Slip           : ", self.slip)
-                    print("Heading        : ", self.heading)
-                    print("HeadingBug     : ", self.headingBug)
-                    print("-----------------")
-                    print("                 ")
-            except:
+                    for item in list_Str:
+                        print(float(item))
+
+            except Exception as e:
                 print('Error while reading serial values')
+                print(repr(e))
+                self.serialReadSuccess = False
+                self.serialReadErrorMessage = 'Failed to read serial line.'
                 time.sleep(1)
+
+    def answerQuery(self):
+        self.ser.write('PFD\n'.encode())
             
     def serialWriteValues(self, dt):
-        valueList = [self.headingBugOut, self.altBugOut, self.spdBugOut, self.vsiBugOut]
-        self.ser.write(self.strForSerialOut(valueList).encode())
+        # Return the bugValues from the PFD to the main computer once communication has been established.
+        # Nothing gets sent if no values have been received so the identifying
+        if self.serialReadSuccess:
+            valueList = [self.headingBugOut, self.altBugOut, self.spdBugOut, self.vsiBugOut]
+            self.ser.write(self.strForSerialOut(valueList).encode())
         
     def strForSerialOut(self, valueList):
         # Takes a list of arguments, rounds them to 4 numbers after the comma, and joins them together in a string that can be sent through a serial link.
@@ -212,6 +229,8 @@ class PfdApp(App):
     # Encoder methods
 
     def encoderUpdate(self, value):     # Gets called by Encoder class as callback
+        # Changes the values of the bugs depending on which button is selected on the screen and which encoder is being turned.
+        # The value only gets sent once the button on the encoders is pushed.
         '''
         Possible values of value:
         1 = Lfine
@@ -295,12 +314,14 @@ class PfdApp(App):
                     self.vsiBugTemp += self.RcoarseInc
 
     def confirmBugsLeft(self, dt):
+        # Gets called when the left encoder is pressed
         if self.pfd.bugselectors.hdgORspd == 'hdg':
             self.headingBugOut = self.headingBugTemp
         if self.pfd.bugselectors.hdgORspd == 'spd':
             self.spdBugOut = self.spdBugTemp
 
     def confirmBugsRight(self, dt):
+        # Gets called when the right encoder is pressed
         if self.pfd.bugselectors.altORvsi == 'alt':
             self.altBugOut = self.altBugTemp
         if self.pfd.bugselectors.altORvsi == 'vsi':
