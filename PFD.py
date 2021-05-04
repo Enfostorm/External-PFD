@@ -140,6 +140,7 @@ class PfdApp(App):
         print('readThread started')
         while True:
             try:
+                list_Str = ['']
                 serRead = self.ser.readline().decode('utf-8')       # Read line, make string ('utf-8')
                 list_Str = serRead.split(';')                       # Put values in list
 
@@ -164,19 +165,22 @@ class PfdApp(App):
 
                     self.serialReadSuccess = True
 
-
-                if len(list_Str) < expected_length:                                                 # Path if too little values are received
+                if list_Str == None:
+                    print('No data could be read')
+                    
+                if len(list_Str) < expected_length:            # Path if too little values are received
                     if 'DEVICE' in serRead:
                         self.answerQuery()
                         print('Answered query from main device.')
-                    print(f'Less than {expected_length} values received: {serRead}')
-                    self.serialReadSuccess = False
-                    self.serialReadErrorMessage = f'Not enough variables in the read line: expected {expected_length} values but received {len(list_str).}'
+                    else:
+                        print(f'Less than {expected_length} values received: {serRead}')
+                        self.serialReadSuccess = False
+                        self.serialReadErrorMessage = f'Not enough variables in the read line: expected {expected_length} values but received {len(list_str)}'
 
                 if len(list_Str) > expected_length:                                                 # Path if more values than expected are received.
                     print(f'More than {expected_length} values received: {serRead}')
                     self.serialReadSuccess = False
-                    self.serialReadErrorMessage = f'Too much variables in the read line: expected {expected_length} values but received {len(list_str).}'
+                    self.serialReadErrorMessage = f'Too much variables in the read line: expected {expected_length} values but received {len(list_str)}'
 
                     
                 if self.serialDebug:
