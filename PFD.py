@@ -130,7 +130,7 @@ class PfdApp(App):
                                 parity = serial.PARITY_NONE,
                                 stopbits = serial.STOPBITS_ONE,
                                 bytesize = serial.EIGHTBITS,
-                                timeout = 1)
+                                timeout = 0.1)
         except:
             print('failed to find suitable port')
     
@@ -141,10 +141,15 @@ class PfdApp(App):
         while True:
             try:
                 list_Str = ['']
-                serRead = self.ser.readline().decode('utf-8')       # Read line, make string ('utf-8')
+                read = self.ser.readline()
+                print(read)
+                serRead = read.decode('utf-8')       # Read line, make string ('utf-8')
+                
+
                 list_Str = serRead.split(';')                       # Put values in list
 
-                if len(list_Str) == expected_length:                                                # Correct path
+                if len(list_Str) in (expected_length, expected_length + 1):                                                # Correct path
+                    print(f'{len(list_Str)} values received')
                     self.pitch = float(list_Str[0])                            # Update app values
                     self.roll = float(list_Str[1])
                     self.slip = float(list_Str[2])
@@ -177,10 +182,10 @@ class PfdApp(App):
                         self.serialReadSuccess = False
                         self.serialReadErrorMessage = f'Not enough variables in the read line: expected {expected_length} values but received {len(list_str)}'
 
-                if len(list_Str) > expected_length:                                                 # Path if more values than expected are received.
-                    print(f'More than {expected_length} values received: {serRead}')
-                    self.serialReadSuccess = False
-                    self.serialReadErrorMessage = f'Too much variables in the read line: expected {expected_length} values but received {len(list_str)}'
+                # if len(list_Str) > expected_length:                                                 # Path if more values than expected are received.
+                #     print(f'More than {expected_length} values received: {serRead}')
+                #     self.serialReadSuccess = False
+                #     self.serialReadErrorMessage = f'Too much variables in the read line: expected {expected_length} values but received {len(list_str)}'
 
                     
                 if self.serialDebug:
@@ -207,9 +212,10 @@ class PfdApp(App):
     def strForSerialOut(self, valueList):
         # Takes a list of arguments, rounds them to 4 numbers after the comma, and joins them together in a string that can be sent through a serial link.
         # The outputstring still needs to be encoded into bytes (with strForSerialOut(valueList).encode() for example).
-        strVariables = [self.roundedStr(element, 4) for element in valueList]
+        strVariables = [self.roundedStr(element, 0) for element in valueList]
         dataString = ';'.join(strVariables)
-        stringToWrite = dataString + '\n'
+        dataStringLengthAdj = dataString.ljust(48, '0')
+        stringToWrite = dataStringLengthAdj + '\n'
         return stringToWrite
     
     def roundedStr(self, number, afterComma):
