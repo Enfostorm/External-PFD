@@ -62,7 +62,7 @@ class PfdApp(App):
         self.serialDebug = False     # Print the incoming serial datastream in console
         self.serialReadSuccess = False
         self.serialReadErrorMessage = ''
-        # --------------------------------------------------------------------------------------------
+        # ------------------------------------    VARIABLES    ----------------------------------------
         self.pitch = 0          # [°]        # Setup variables for the app
         self.roll = 0           # [°]
         self.slip = 0           # [°]
@@ -99,8 +99,11 @@ class PfdApp(App):
         self.pfd = PFD()
         self.setBugButtonLabels()
         self.openPort()
+        self.ser.flushInput()               # Makes sure fresh values are read so there's no need to catch up with old values from the buffer
+        self.ser.flushOutput()
         Clock.schedule_interval(self.updateDisplayElements, 1/60)
-        threading.Thread(target=self.serialReadValuesThread, daemon=True).start()        # Separate thread to read the serial input. Daemon makes sure the thread closes if the main program closes
+        threading.Thread(target=self.serialReadValuesThread, daemon=True).start()       # Separate thread to read the serial input. Daemon makes sure the thread closes if the main program closes
+                                                                                        #          This is will NOT use a different core, but will be able to execute alongside the main program see documentation for more information
         Clock.schedule_interval(self.serialWriteValues, 1/60)
         return self.pfd
 
@@ -136,7 +139,13 @@ class PfdApp(App):
     
     def serialReadValuesThread(self):
         # !!!Only run this method in a separate thread or your program will get stuck in an infinite loop blocking all other methods!!!
+        
         expected_length = 14    # Amount of parameters that get transmitted
+        
+        if self.serialReadSuccess == False:     # Prevent data from piling up while time-out is in progress
+            self.ser.flushInput()               # 
+            self.ser.readLine()                 # Discard first line of new data so new readLine is a full line (flushInput does not remove full lines.)
+
         print('readThread started')
         while True:
             try:
@@ -163,7 +172,7 @@ class PfdApp(App):
 
                     self.groundTrack = float(list_Str[13])
 
-                    self.serialReadSuccess = True
+                    self.serialReadSuccess = True       # If it gets here, the read was a success
 
                 if list_Str == None:
                     print('No data could be read')
