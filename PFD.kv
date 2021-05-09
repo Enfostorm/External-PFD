@@ -34,11 +34,15 @@
                 BugButton:
                 BugButton:
 
-
-
         FloatLayout:
-
             CompassEverything:
                 id: compass
             BugSelectors:
                 id: bugselectors
+
+<ErrorCross>:
+    canvas:
+        Line:
+            points: root.x + root.width * 0.1, root.y + root.height * 0.1, root.right - root.width * 0.1, root.top - root.height * 0.1
+        Line:
+            points: root.right - root.width * 0.1, root.y + root.height * 0.1, root.x + root.width * 0.1, root.top - root.height * 0.1
