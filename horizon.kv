@@ -348,7 +348,7 @@
         canvas:
             Rectangle:
                 size: self.height / 38 , self.height / 130
-                pos: root.x + root.width/2 - (self.height / 38)/2 + root.height * root.slip, root.y + root.height * (0.875)    
+                pos: root.x + root.width/2 - (self.height / 38)/2 + root.height * root.slip * self.height/38, root.y + root.height * (0.875)       # self.height/38 is for scaling if the input value. -1 to 1 moves the block its own width to the side.
 
 
 
@@ -384,35 +384,33 @@
             size_hint: 999, 0.035        # Big value to prevent being limited by size in x
             allow_stretch: True         # enable picture to scale above 100%, aspect ratio stays
 
-    # StackLayout:                  # Sliders to set pitch and roll real-time without external input, for testing purposes
-    #     size: root.size
-    #     pos: root.pos
-    #     orientation: 'lr-bt'
+<HorizonError>:
+    horPitchRoll: horPitchRoll
+    slipindicator: slipindicator
+    FloatLayout:
+        size: root.size
+        pos: root.pos
 
-    #     Slider:
-    #         id: sliderPitch
-    #         orientation: 'vertical'
-    #         size_hint: None, 1
-    #         min: -90
-    #         max: 90
-    #         on_touch_move: root.updatePitch(sliderPitch.value)
-    #         on_touch_down: root.updatePitch(sliderPitch.value)
-    #         on_touch_up: root.updatePitch(sliderPitch.value)
+        HorizonPitchAndRoll:
+            pos: root.pos
+            id: horPitchRoll
+            canvas.before:
+                PushMatrix:
+                Rotate:
+                    angle: root.roll
+                    origin: root.center
+            canvas.after:
+                PopMatrix:
 
-    #     Slider:
-    #         id: sliderRoll
-    #         size_hint: 0.4, None
-    #         min: -180
-    #         max: 180
-    #         on_touch_move: root.updateRoll(sliderRoll.value)
-    #         on_touch_down: root.updateRoll(sliderRoll.value)
-    #         on_touch_up: root.updateRoll(sliderRoll.value)
+        RollTriangle:
+            pos: root.pos
+        SlipIndicator:
+            pos: root.pos
+            id: slipindicator
 
-    #     Slider:
-    #         id: sliderSlip
-    #         size_hint: 0.4, None
-    #         min: -0.015
-    #         max: 0.015
-    #         on_touch_move: root.updateSlip(sliderSlip.value)
-    #         on_touch_down: root.updateSlip(sliderSlip.value)
-    #         on_touch_up: root.updateSlip(sliderSlip.value)
+        Image:
+            pos: root.pos
+            source: 'images/center2.png'
+            pos_hint: {'center_x': 0.5, 'top': 0.503}
+            size_hint: 999, 0.035        # Big value to prevent being limited by size in x
+            allow_stretch: True         # enable picture to scale above 100%, aspect ratio stays

@@ -24,7 +24,7 @@ class PFD(Widget):
     compass = ObjectProperty()
     bugselectors = ObjectProperty()
 
-    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
+    def update(self, serialReadSuccess, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
         self.compass.update(heading, headingBug, headingRate, groundTrack)       # Heading [deg], HeadingBug [deg]
         self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit, vSpeedUnit)
@@ -114,7 +114,7 @@ class PfdApp(App):
         self.pfd.bugselectors.setVsiFunction('VSI')
 
     def updateDisplayElements(self, dt):
-        self.pfd.update(self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
+        self.pfd.update(self.serialReadSuccess, self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
                         self.headingRate, self.vSpeed, self.deltaSpeed,
                         self.headingBug, self.altBug, self.spdBug, self.vsiBug,
                         self.groundTrack,
@@ -144,7 +144,7 @@ class PfdApp(App):
         
         if self.serialReadSuccess == False:     # Prevent data from piling up while time-out is in progress
             self.ser.flushInput()               # 
-            self.ser.readLine()                 # Discard first line of new data so new readLine is a full line (flushInput does not remove full lines.)
+            self.ser.readline()                 # Discard first line of new data so new readLine is a full line (flushInput does not remove full lines.)
 
         print('readThread started')
         while True:
@@ -163,19 +163,21 @@ class PfdApp(App):
 
                     self.headingRate = float(list_Str[6])
                     self.vSpeed = float(list_Str[7])
-                    self.deltaSpeed = float(list_Str[8])
 
-                    self.headingBug = float(list_Str[9])
-                    self.altBug = float(list_Str[10])
-                    self.spdBug = float(list_Str[11])
-                    self.vsiBug = float(list_Str[12])
+                    self.headingBug = float(list_Str[8])
+                    self.altBug = float(list_Str[9])
+                    self.spdBug = float(list_Str[10])
+                    self.vsiBug = float(list_Str[11])
 
-                    self.groundTrack = float(list_Str[13])
+                    self.groundTrack = float(list_Str[12])
+
+                    self.altitudeUnit = str(list_Str[13])
+                    self.speedUnit = str(list_Str[14])
 
                     self.serialReadSuccess = True       # If it gets here, the read was a success
 
                 if list_Str == None:
-                    print('No data could be read')
+                    print('read data is empty')
                     
                 if len(list_Str) < expected_length:            # Path if too little values are received
                     if 'DEVICE' in serRead:
@@ -184,12 +186,12 @@ class PfdApp(App):
                     else:
                         print(f'Less than {expected_length} values received: {serRead}')
                         self.serialReadSuccess = False
-                        self.serialReadErrorMessage = f'Not enough variables in the read line: expected {expected_length} values but received {len(list_str)}'
+                        self.serialReadErrorMessage = f'Not enough variables in the read line: expected {expected_length} values but received {len(list_Str)}'
 
                 if len(list_Str) > expected_length:                                                 # Path if more values than expected are received.
                     print(f'More than {expected_length} values received: {serRead}')
                     self.serialReadSuccess = False
-                    self.serialReadErrorMessage = f'Too much variables in the read line: expected {expected_length} values but received {len(list_str)}'
+                    self.serialReadErrorMessage = f'Too much variables in the read line: expected {expected_length} values but received {len(list_Str)}'
 
                     
                 if self.serialDebug:
@@ -197,11 +199,10 @@ class PfdApp(App):
                         print(float(item))
 
             except Exception as e:
-                print('Error while reading serial values')
-                print(repr(e))
+
                 self.serialReadSuccess = False
-                self.serialReadErrorMessage = 'Failed to read serial line.'
-                time.sleep(1)
+                self.serialReadErrorMessage = 'serialReadValuesThread exception: Failed to read serial line.'
+                print(repr(e) + '\n')
 
     def answerQuery(self):
         self.ser.write('PFD\n'.encode())

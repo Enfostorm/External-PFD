@@ -67,6 +67,9 @@ class HorizonEverything(Widget):           # Full layout
     def updateSlip(self, slip):
         self.slipindicator.slip = slip
 
+class HorizonError(Widget):
+    pass
+
 # =====================================================================================
 class HorizonApp(App):
     def build(self):
