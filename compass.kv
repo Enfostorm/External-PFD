@@ -128,18 +128,23 @@
             font_size: root.height/30
     
 <GroundTrack>:
-    canvas:
-        Line:
-            points: root.x + root.width/2, root.y + root.height/2 + root.height/15, root.x + root.width/2, root.y + root.height * 0.82
-            dash_offset: 10
-            dash_length: 10
+    Image:
+        source: 'images/groundtrack.png'
+        pos_hint: {'center_x': 0.5, 'y': 0.55}
+        size_hint: 999, 0.4
+        allow_stretch: True
+    # canvas:
+    #     Line:
+    #         points: root.x + root.width/2, root.y + root.height/2 + root.height/15, root.x + root.width/2, root.y + root.height * 0.82
+    #         dash_offset: 10
+    #         dash_length: 10
 
 # ========================================================================================================
 <CompassEverything>:
     headingDisp: headingDisp
     headingRate: headingRate
     canvas:
-        Color:
+        Color:                      # Black background so horizon is covered
             rgb: 0, 0, 0
         Rectangle:
             size: root.size

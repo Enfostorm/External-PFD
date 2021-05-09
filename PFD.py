@@ -27,10 +27,10 @@ class PFD(Widget):
     bugselectors = ObjectProperty()
     mainLayout = ObjectProperty()
 
-    def update(self, serialReadSuccess, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
+    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
         self.compass.update(heading, headingBug, headingRate, groundTrack)       # Heading [deg], HeadingBug [deg]
-        self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit, vSpeedUnit)
+        self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit)
 
 class ErrorCross(FloatLayout):
     pass
@@ -123,7 +123,7 @@ class PfdApp(App):
         self.pfd.bugselectors.setVsiFunction('VSI')
 
     def updateDisplayElements(self, dt):
-        self.pfd.update(self.serialReadSuccess, self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
+        self.pfd.update(self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
                         self.headingRate, self.vSpeed, self.deltaSpeed,
                         self.headingBug, self.altBug, self.spdBug, self.vsiBug,
                         self.groundTrack,
@@ -254,6 +254,7 @@ class PfdApp(App):
             if self.errorCrossActive:
                 self.pfd.mainLayout.remove_widget(self.errorCross)
                 self.errorCrossActive = False
+                self.pfd.update(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.altitudeUnit, self.speedUnit, self.vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp)
 
         else:
             self.serReadErrorCounter += 1
