@@ -348,7 +348,7 @@
         canvas:
             Rectangle:
                 size: self.height / 38 , self.height / 130
-                pos: root.x + root.width/2 - (self.height / 38)/2 + root.height * root.slip * self.height/38, root.y + root.height * (0.875)       # self.height/38 is for scaling if the input value. -1 to 1 moves the block its own width to the side.
+                pos: root.x + root.width/2 - (self.height / 38)/2 + self.height/38 * root.slip, root.y + root.height * (0.875)       # self.height/38 is for scaling if the input value. -1 to 1 moves the block its own width to the side.
 
 
 

@@ -80,11 +80,11 @@ class BugSelectors(Widget):
         # self.headingButton.setState('down')
         # self.altButton.setState('down')
 
-    def updateValues(self, headingValue, speedValue, altValue, vsiValue, speedUnit, altUnit, vsiUnit):
+    def updateValues(self, headingValue, speedValue, altValue, vsiValue, speedUnit, altUnit):
         self.setHeadingValue(headingValue)
         self.setSpeedValue(speedValue, speedUnit)
         self.setAltValue(altValue, altUnit)
-        self.setVsiValue(vsiValue, vsiUnit)
+        self.setVsiValue(vsiValue, altUnit)
 
     def headingActive(self):
         self.hdgORspd = 'hdg'
@@ -119,7 +119,7 @@ class BugSelectors(Widget):
     def setAltValue(self, val, unit):
         self.altButton.setValue(val, unit)
     def setVsiValue(self, val, unit):
-        self.vsiButton.setValue(val, unit)
+        self.vsiButton.setValue(val, f'{unit}/s')
 
     def printInfo(self):
         print(f'{self.hdgORspd} {self.altORvsi}')

@@ -27,10 +27,10 @@ class PFD(Widget):
     bugselectors = ObjectProperty()
     mainLayout = ObjectProperty()
 
-    def update(self, serialReadSuccess, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
+    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
         self.compass.update(heading, headingBug, headingRate, groundTrack)       # Heading [deg], HeadingBug [deg]
-        self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit, vSpeedUnit)
+        self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit)
 
 class ErrorCross(FloatLayout):
     pass
@@ -123,7 +123,7 @@ class PfdApp(App):
         self.pfd.bugselectors.setVsiFunction('VSI')
 
     def updateDisplayElements(self, dt):
-        self.pfd.update(self.serialReadSuccess, self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
+        self.pfd.update(self.pitch, self.roll, self.slip, self.heading, self.altitude, self.speed,
                         self.headingRate, self.vSpeed, self.deltaSpeed,
                         self.headingBug, self.altBug, self.spdBug, self.vsiBug,
                         self.groundTrack,
@@ -262,6 +262,23 @@ class PfdApp(App):
                     self.pfd.mainLayout.add_widget(self.errorCross)
                     self.errorCrossActive = True
 
+                    self.pitch = 0                            # Neutral position of all indicators
+                    self.roll = 0
+                    self.slip = 0
+                    self.heading = 0
+                    self.altitude = 0
+                    self.speed = 0
+
+                    self.headingRate = 0
+                    self.vSpeed = 0
+
+                    self.headingBug = 0
+                    self.altBug = 0
+                    self.spdBug = 0
+                    self.vsiBug = 0
+
+                    self.groundTrack = 0
+
         
     
     # ________________________________________________________________________________________________
@@ -319,7 +336,7 @@ class PfdApp(App):
             if value > 0: # CW
                 if self.pfd.bugselectors.hdgORspd == 'hdg':
                     self.headingBugTemp += self.LcoarseInc
-                    if self.headingBugTemp > 360:
+                    if self.headingBugTemp >= 360:
                         self.headingBugTemp -= 360
                 elif self.pfd.bugselectors.hdgORspd == 'spd':
                     self.spdBugTemp += self.LcoarseInc
