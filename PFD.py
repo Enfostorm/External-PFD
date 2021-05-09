@@ -254,7 +254,6 @@ class PfdApp(App):
             if self.errorCrossActive:
                 self.pfd.mainLayout.remove_widget(self.errorCross)
                 self.errorCrossActive = False
-                self.pfd.update(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.altitudeUnit, self.speedUnit, self.vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp)
 
         else:
             self.serReadErrorCounter += 1
@@ -262,6 +261,23 @@ class PfdApp(App):
                 if not self.errorCrossActive:
                     self.pfd.mainLayout.add_widget(self.errorCross)
                     self.errorCrossActive = True
+
+                    self.pitch = 0                            # Neutral position of all indicators
+                    self.roll = 0
+                    self.slip = 0
+                    self.heading = 0
+                    self.altitude = 0
+                    self.speed = 0
+
+                    self.headingRate = 0
+                    self.vSpeed = 0
+
+                    self.headingBug = 0
+                    self.altBug = 0
+                    self.spdBug = 0
+                    self.vsiBug = 0
+
+                    self.groundTrack = 0
 
         
     
@@ -320,7 +336,7 @@ class PfdApp(App):
             if value > 0: # CW
                 if self.pfd.bugselectors.hdgORspd == 'hdg':
                     self.headingBugTemp += self.LcoarseInc
-                    if self.headingBugTemp > 360:
+                    if self.headingBugTemp >= 360:
                         self.headingBugTemp -= 360
                 elif self.pfd.bugselectors.hdgORspd == 'spd':
                     self.spdBugTemp += self.LcoarseInc

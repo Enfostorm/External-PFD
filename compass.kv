@@ -120,7 +120,7 @@
         Label:
             id: headingLabel
             pos_hint: {'center_x': 0.5, 'center_y': 0.95}
-            text_size: root.height/12, root.height/15
+            text_size: root.height/11, root.height/15
             halign: 'right'
             valign: 'middle'
             text: '360°'
@@ -128,11 +128,13 @@
             font_size: root.height/30
     
 <GroundTrack>:
-    Image:
-        source: 'images/groundtrack.png'
-        pos_hint: {'center_x': 0.5, 'y': 0.55}
-        size_hint: 999, 0.4
-        allow_stretch: True
+    FloatLayout:
+        size: root.size
+        Image:
+            source: 'images/groundtrack.png'
+            pos_hint: {'center_x': 0.5, 'y': 0.57}
+            size_hint: 999, 0.25
+            allow_stretch: True
     # canvas:
     #     Line:
     #         points: root.x + root.width/2, root.y + root.height/2 + root.height/15, root.x + root.width/2, root.y + root.height * 0.82
