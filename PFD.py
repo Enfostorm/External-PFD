@@ -140,7 +140,7 @@ class PfdApp(App):
     def serialReadValuesThread(self):
         # !!!Only run this method in a separate thread or your program will get stuck in an infinite loop blocking all other methods!!!
         
-        expected_length = 14    # Amount of parameters that get transmitted
+        expected_length = 15    # Amount of parameters that get transmitted
         
         if self.serialReadSuccess == False:     # Prevent data from piling up while time-out is in progress
             self.ser.flushInput()               # 
@@ -219,7 +219,7 @@ class PfdApp(App):
         # The outputstring still needs to be encoded into bytes (with strForSerialOut(valueList).encode() for example).
         strVariables = [self.roundedStr(element, 4) for element in valueList]
         dataString = ';'.join(strVariables)
-        stringToWrite = dataString + '\n'
+        stringToWrite = dataString + ';\n'
         return stringToWrite
     
     def roundedStr(self, number, afterComma):
