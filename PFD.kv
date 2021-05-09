@@ -4,41 +4,54 @@
     horizon: horizon
     compass: compass
     bugselectors: bugselectors
+    mainLayout: mainLayout
 
-    BoxLayout:                          # Artificial horizon
-        orientation: 'vertical'
+    FloatLayout:
+        id: mainLayout
         size: root.size
-        pos: root.pos
-        HorizonEverything:
-            id: horizon
+
+        BoxLayout:                          # Artificial horizon
+            orientation: 'vertical'
             size: root.size
             pos: root.pos
+            HorizonEverything:
+                id: horizon
+                size: root.size
+                pos: root.pos
 
-        FloatLayout:
-            size_hint_y: 0.13
-            Widget:
-                pos: self.parent.pos
-                canvas:
-                    Color:
-                        rgba: 0, 0, 0, 0
-                    Rectangle:
-                        size: self.parent.size
-                        pos: self.parent.pos
+            FloatLayout:
+                size_hint_y: 0.13
+                Widget:
+                    pos: self.parent.pos
+                    canvas:
+                        Color:
+                            rgba: 0, 0, 0, 0
+                        Rectangle:
+                            size: self.parent.size
+                            pos: self.parent.pos
 
-            BoxLayout:                      # Center row of displays, TODO maybe put them in a separate widget??
-                pos: self.parent.pos
-                orientation: 'horizontal'
-                BugButton:
-                BugButton:
-                BugButton:
-                BugButton:
-                BugButton:
+                BoxLayout:                      # Center row of displays, TODO maybe put them in a separate widget??
+                    pos: self.parent.pos
+                    orientation: 'horizontal'
+                    BugButton:
+                    BugButton:
+                    BugButton:
+                    BugButton:
+                    BugButton:
 
+            FloatLayout:
+                CompassEverything:
+                    id: compass
+                BugSelectors:
+                    id: bugselectors
 
-
-        FloatLayout:
-
-            CompassEverything:
-                id: compass
-            BugSelectors:
-                id: bugselectors
+<ErrorCross>:
+    canvas:
+        Color:
+            rgb: 1, 0, 0
+        Line:
+            points: root.x, root.y, root.right, root.top
+            width: 5
+        Line:
+            points: root.right, root.y, root.x, root.top
+            width: 5
