@@ -41,8 +41,14 @@
                 id: bugselectors
 
 <ErrorCross>:
+    size: root.size
+    pos: root.pos
     canvas:
+        Color:
+            rgb: 1, 0, 0
         Line:
             points: root.x + root.width * 0.1, root.y + root.height * 0.1, root.right - root.width * 0.1, root.top - root.height * 0.1
+            width: 5
         Line:
             points: root.right - root.width * 0.1, root.y + root.height * 0.1, root.x + root.width * 0.1, root.top - root.height * 0.1
+            width: 5

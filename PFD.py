@@ -110,7 +110,7 @@ class PfdApp(App):
         threading.Thread(target=self.serialReadValuesThread, daemon=True).start()       # Separate thread to read the serial input. Daemon makes sure the thread closes if the main program closes
                                                                                         #          This is will NOT use a different core, but will be able to execute alongside the main program see documentation for more information
         Clock.schedule_interval(self.serialWriteValues, 1/60)
-        Clock.schedule_del_safe(self.checkConnectivity, 1/5)                            # Decide if red cross should be shown on screen
+        Clock.schedule_interval(self.checkConnectivity, 1/5)                            # Decide if red cross should be shown on screen
         return self.pfd
 
     def setBugButtonLabels(self):
