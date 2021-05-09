@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 from kivy.config import Config
@@ -19,17 +20,19 @@ from encoder import Encoder
 import RPi.GPIO as GPIO
 
 
+
 class PFD(Widget):
     horizon = ObjectProperty()
     compass = ObjectProperty()
     bugselectors = ObjectProperty()
+    mainLayout = ObjectProperty()
 
     def update(self, serialReadSuccess, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
         self.compass.update(heading, headingBug, headingRate, groundTrack)       # Heading [deg], HeadingBug [deg]
         self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit, vSpeedUnit)
 
-class ErrorCross(Widget):
+class ErrorCross(FloatLayout):
     pass
 # ========================================================================================================================
 # MAIN APP LOGIC BEGINS HERE
@@ -249,14 +252,14 @@ class PfdApp(App):
         if self.serialReadSuccess:
             self.serReadErrorCounter = 0
             if self.errorCrossActive:
-                self.pfd.remove_widget(self.errorCross)
+                self.pfd.mainLayout.remove_widget(self.errorCross)
                 self.errorCrossActive = False
 
         else:
             self.serReadErrorCounter += 1
             if self.serReadErrorCounter > 0:
                 if not self.errorCrossActive:
-                    self.pfd.add_widget(self.errorCross)
+                    self.pfd.mainLayout.add_widget(self.errorCross)
                     self.errorCrossActive = True
 
         
