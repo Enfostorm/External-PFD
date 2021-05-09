@@ -110,7 +110,7 @@ class PfdApp(App):
         threading.Thread(target=self.serialReadValuesThread, daemon=True).start()       # Separate thread to read the serial input. Daemon makes sure the thread closes if the main program closes
                                                                                         #          This is will NOT use a different core, but will be able to execute alongside the main program see documentation for more information
         Clock.schedule_interval(self.serialWriteValues, 1/60)
-        Clock.schedule_del_safe(self.checkConnectivit, 1/5)                            # Decide if red cross should be shown on screen
+        Clock.schedule_del_safe(self.checkConnectivity, 1/5)                            # Decide if red cross should be shown on screen
         return self.pfd
 
     def setBugButtonLabels(self):
@@ -245,7 +245,7 @@ class PfdApp(App):
         print(f'No ports with keyword {keyword} automatically found, falling back to /dev/ttyS0')   # Prints if no keyword has been found
         return '/dev/ttyS0'
 
-    def checkConnectivity(self):
+    def checkConnectivity(self, dt):
         if self.serialReadSuccess:
             self.serReadErrorCounter = 0
             if self.errorCrossActive:
