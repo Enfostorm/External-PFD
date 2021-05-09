@@ -29,6 +29,8 @@ class PFD(Widget):
         self.compass.update(heading, headingBug, headingRate, groundTrack)       # Heading [deg], HeadingBug [deg]
         self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit, vSpeedUnit)
 
+class ErrorCross(Widget):
+    pass
 # ========================================================================================================================
 # MAIN APP LOGIC BEGINS HERE
 # ========================================================================================================================
@@ -61,7 +63,10 @@ class PfdApp(App):
 
         self.serialDebug = False     # Print the incoming serial datastream in console
         self.serialReadSuccess = False
+        self.serReadErrorCounter = 0
+        self.errorCrossActive = False
         self.serialReadErrorMessage = ''
+        self.errorCross = ErrorCross()
         # ------------------------------------    VARIABLES    ----------------------------------------
         self.pitch = 0          # [°]        # Setup variables for the app
         self.roll = 0           # [°]
@@ -92,8 +97,8 @@ class PfdApp(App):
 
         self.headingBugTemp = 0 # Values displayed in the bugButtons before they are confirmed by a press of the button.
         self.altBugTemp = 0     #
-        self.spdBugTemp = 0         #
-        self.vsiBugTemp = 0         #
+        self.spdBugTemp = 0     #
+        self.vsiBugTemp = 0     #
         # --------------------------------------------------------------------------------------------
 
         self.pfd = PFD()
@@ -105,6 +110,7 @@ class PfdApp(App):
         threading.Thread(target=self.serialReadValuesThread, daemon=True).start()       # Separate thread to read the serial input. Daemon makes sure the thread closes if the main program closes
                                                                                         #          This is will NOT use a different core, but will be able to execute alongside the main program see documentation for more information
         Clock.schedule_interval(self.serialWriteValues, 1/60)
+        Clock.schedule_interval(self.checkConnectivity, 1/5)                            # Decide if red cross should be shown on screen
         return self.pfd
 
     def setBugButtonLabels(self):
@@ -140,7 +146,7 @@ class PfdApp(App):
     def serialReadValuesThread(self):
         # !!!Only run this method in a separate thread or your program will get stuck in an infinite loop blocking all other methods!!!
         
-        expected_length = 14    # Amount of parameters that get transmitted
+        expected_length = 15 + 1     # Amount of parameters that get transmitted, +1 for the \n
         
         if self.serialReadSuccess == False:     # Prevent data from piling up while time-out is in progress
             self.ser.flushInput()               # 
@@ -153,7 +159,7 @@ class PfdApp(App):
                 serRead = self.ser.readline().decode('utf-8')       # Read line, make string ('utf-8')
                 list_Str = serRead.split(';')                       # Put values in list
 
-                if len(list_Str) == expected_length:                                                # Correct path
+                if len(list_Str) == expected_length:                                                # "Correct" path
                     self.pitch = float(list_Str[0])                            # Update app values
                     self.roll = float(list_Str[1])
                     self.slip = float(list_Str[2])
@@ -177,7 +183,7 @@ class PfdApp(App):
                     self.serialReadSuccess = True       # If it gets here, the read was a success
 
                 if list_Str == None:
-                    print('read data is empty')
+                    print('readline is empty')
                     
                 if len(list_Str) < expected_length:            # Path if too little values are received
                     if 'DEVICE' in serRead:
@@ -209,7 +215,7 @@ class PfdApp(App):
             
     def serialWriteValues(self, dt):
         # Return the bugValues from the PFD to the main computer once communication has been established.
-        # Nothing gets sent if no values have been received so the identifying
+        # Nothing gets sent if no values have been received so the identifying string is the only thing that gets sent.
         if self.serialReadSuccess:
             valueList = [self.headingBugOut, self.altBugOut, self.spdBugOut, self.vsiBugOut]
             self.ser.write(self.strForSerialOut(valueList).encode())
@@ -219,7 +225,7 @@ class PfdApp(App):
         # The outputstring still needs to be encoded into bytes (with strForSerialOut(valueList).encode() for example).
         strVariables = [self.roundedStr(element, 4) for element in valueList]
         dataString = ';'.join(strVariables)
-        stringToWrite = dataString + '\n'
+        stringToWrite = dataString + ';\n'
         return stringToWrite
     
     def roundedStr(self, number, afterComma):
@@ -238,6 +244,22 @@ class PfdApp(App):
 
         print(f'No ports with keyword {keyword} automatically found, falling back to /dev/ttyS0')   # Prints if no keyword has been found
         return '/dev/ttyS0'
+
+    def checkConnectivity(self, dt):
+        if self.serialReadSuccess:
+            self.serReadErrorCounter = 0
+            if self.errorCrossActive:
+                self.pfd.remove_widget(self.errorCross)
+                self.errorCrossActive = False
+
+        else:
+            self.serReadErrorCounter += 1
+            if self.serReadErrorCounter > 0:
+                if not self.errorCrossActive:
+                    self.pfd.add_widget(self.errorCross)
+                    self.errorCrossActive = True
+
+        
     
     # ________________________________________________________________________________________________
     # Encoder methods
