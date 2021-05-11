@@ -27,10 +27,10 @@ class PFD(Widget):
     bugselectors = ObjectProperty()
     mainLayout = ObjectProperty()
 
-    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugTemp, altBugTemp, spdBugTemp, vsiBugTemp):
+    def update(self, pitch, roll, slip, heading, altitude, speed, headingRate, vSpeed, deltaSpeed, headingBug, altBug, spdBug, vsiBug, groundTrack, altitudeUnit, speedUnit, vSpeedUnit, headingBugOut, altBugOut, spdBugOut, vsiBugOut):
         self.horizon.update(pitch, roll, slip)       # Pitch [deg], Roll [deg] and Slip
         self.compass.update(heading, headingBug, headingRate, groundTrack)       # Heading [deg], HeadingBug [deg]
-        self.bugselectors.updateValues(headingBugTemp, spdBugTemp, altBugTemp, vsiBugTemp, speedUnit, altitudeUnit)
+        self.bugselectors.updateValues(headingBugOut, spdBugOut, altBugOut, vsiBugOut, speedUnit, altitudeUnit)
 
 class ErrorCross(FloatLayout):
     pass
@@ -70,6 +70,8 @@ class PfdApp(App):
         self.errorCrossActive = False
         self.serialReadErrorMessage = ''
         self.errorCross = ErrorCross()
+
+        self.simulink_fix = True    # With this enabled the output will always be 50 bytes long. Otherwise as short as they need to be.
         # ------------------------------------    VARIABLES    ----------------------------------------
         self.pitch = 0          # [°]        # Setup variables for the app
         self.roll = 0           # [°]
@@ -86,22 +88,17 @@ class PfdApp(App):
         self.vSpeed = 0         #
         self.deltaSpeed = 0     #        # Change in speed / s (acceleration)
 
-        self.headingBug = 0     # [°]    # Bugvalues
+        self.headingBug = 0     # [°]    # Bugvalues received through the serial link. Display location is set based on these values.
         self.altBug = 0         # [altitudeUnit]
         self.spdBug = 0         #
         self.vsiBug = 0         #
 
         self.headingBugOut = 0  #   Internal variables that will get sent out to the main computer over serial.
-        self.altBugOut = 0      #   Positions of the bugs are set based off of values coming back through the serial link.
+        self.altBugOut = 0      #   Displayed positions of the bugs are set based off of values coming back through the serial link.
         self.spdBugOut = 0      #
         self.vsiBugOut = 0      #
 
         self.groundTrack = 0    # [°]
-
-        self.headingBugTemp = 0 # Values displayed in the bugButtons before they are confirmed by a press of the button.
-        self.altBugTemp = 0     #
-        self.spdBugTemp = 0     #
-        self.vsiBugTemp = 0     #
         # --------------------------------------------------------------------------------------------
 
         self.pfd = PFD()
@@ -128,7 +125,7 @@ class PfdApp(App):
                         self.headingBug, self.altBug, self.spdBug, self.vsiBug,
                         self.groundTrack,
                         self.altitudeUnit, self.speedUnit, self.vSpeedUnit,
-                        self.headingBugTemp, self.altBugTemp, self.spdBugTemp, self.vsiBugTemp)
+                        self.headingBugOut, self.altBugOut, self.spdBugOut, self.vsiBugOut)
 
     # ________________________________________________________________________________________________
     # Serial data methods
@@ -221,15 +218,19 @@ class PfdApp(App):
         # Nothing gets sent if no values have been received so the identifying string is the only thing that gets sent.
         if self.serialReadSuccess:
             valueList = [self.headingBugOut, self.altBugOut, self.spdBugOut, self.vsiBugOut]
-            self.ser.write(self.strForSerialOut(valueList).encode())
+            outputString = self.strForSerialOut(valueList)
+            if self.simulink_fix:           # If fix is turned on, fill out until 50 characters.
+                outputString.ljust(48, '0')
+            outputString = outputString + ';\n'
+            print(outputString)
+            self.ser.write(outputString.encode())
         
     def strForSerialOut(self, valueList):
-        # Takes a list of arguments, rounds them to 4 numbers after the comma, and joins them together in a string that can be sent through a serial link.
-        # The outputstring still needs to be encoded into bytes (with strForSerialOut(valueList).encode() for example).
+        # Takes a list of arguments, rounds them to 4 numbers after the comma, and joins them together in a string.
+        # The outputstring still needs a newline (\n) and needs to be encoded into bytes (with strForSerialOut(valueList).encode() for example).
         strVariables = [self.roundedStr(element, 4) for element in valueList]
         dataString = ';'.join(strVariables)
-        stringToWrite = dataString + ';\n'
-        return stringToWrite
+        return dataString
     
     def roundedStr(self, number, afterComma):
         # roundedStr(123,4567890, 2) ==> 123,45
@@ -278,8 +279,6 @@ class PfdApp(App):
                     self.vsiBug = 0
 
                     self.groundTrack = 0
-
-        
     
     # ________________________________________________________________________________________________
     # Encoder methods
@@ -305,83 +304,83 @@ class PfdApp(App):
         if abs(value) == 1:     # Left fine encoder
             if value < 0: # CCW
                 if self.pfd.bugselectors.hdgORspd == 'hdg':
-                    self.headingBugTemp -= self.LfineInc
-                    if self.headingBugTemp < 0:
-                        self.headingBugTemp += 360
+                    self.headingBug -= self.LfineInc
+                    if self.headingBugOut < 0:
+                        self.headingBugOut += 360
                 elif self.pfd.bugselectors.hdgORspd == 'spd':
-                    self.spdBugTemp -= self.LfineInc
-                    if self.spdBugTemp < 0:
-                        self.spdBugTemp = 0
+                    self.spdBugOut -= self.LfineInc
+                    if self.spdBugOut < 0:
+                        self.spdBugOut = 0
 
             if value > 0: # CW
                 if self.pfd.bugselectors.hdgORspd == 'hdg':
-                    self.headingBugTemp += self.LfineInc
-                    if self.headingBugTemp >= 360:
-                        self.headingBugTemp -= 360
+                    self.headingBugOut += self.LfineInc
+                    if self.headingBugOut >= 360:
+                        self.headingBugOut -= 360
                 elif self.pfd.bugselectors.hdgORspd == 'spd':
-                    self.spdBugTemp += self.LfineInc
+                    self.spdBugOut += self.LfineInc
 
 
         if abs(value) == 2:     # Left coarse encoder
             if value < 0: # CCW
                 if self.pfd.bugselectors.hdgORspd == 'hdg':
-                    self.headingBugTemp -= self.LcoarseInc
-                    if self.headingBugTemp < 0:
-                        self.headingBugTemp += 360
+                    self.headingBugOut -= self.LcoarseInc
+                    if self.headingBugOut < 0:
+                        self.headingBugOut += 360
                 elif self.pfd.bugselectors.hdgORspd == 'spd':
-                    self.spdBugTemp -= self.LcoarseInc
-                    if self.spdBugTemp < 0:
-                        self.spdBugTemp = 0
+                    self.spdBugOut -= self.LcoarseInc
+                    if self.spdBugOut < 0:
+                        self.spdBugOut = 0
 
             if value > 0: # CW
                 if self.pfd.bugselectors.hdgORspd == 'hdg':
-                    self.headingBugTemp += self.LcoarseInc
-                    if self.headingBugTemp >= 360:
-                        self.headingBugTemp -= 360
+                    self.headingBugOut += self.LcoarseInc
+                    if self.headingBugOut >= 360:
+                        self.headingBugOut -= 360
                 elif self.pfd.bugselectors.hdgORspd == 'spd':
-                    self.spdBugTemp += self.LcoarseInc
+                    self.spdBugOut += self.LcoarseInc
 
         if abs(value) == 3:     # Right fine encoder
             if value < 0: # CCW
                 if self.pfd.bugselectors.altORvsi == 'alt':
-                    self.altBugTemp -= self.RfineInc * 100           # Faster movement through altitude
-                    if self.altBugTemp < 0:
-                        self.altBugTemp = 0
+                    self.altBugOut -= self.RfineInc * 100           # Faster movement through altitude
+                    if self.altBugOut < 0:
+                        self.altBugOut = 0
                 elif self.pfd.bugselectors.altORvsi == 'vsi':
-                    self.vsiBugTemp -= self.RfineInc
+                    self.vsiBugOut -= self.RfineInc
             if value > 0: # CW
                 if self.pfd.bugselectors.altORvsi == 'alt':
-                    self.altBugTemp += self.RfineInc * 100          # Faster movement through altitude
+                    self.altBugOut += self.RfineInc * 100          # Faster movement through altitude
                 elif self.pfd.bugselectors.altORvsi == 'vsi':
-                    self.vsiBugTemp += self.RfineInc
+                    self.vsiBugOut += self.RfineInc
 
         if abs(value) == 4:     # Right coarse encoder
             if value < 0: # CCW
                 if self.pfd.bugselectors.altORvsi == 'alt':
-                    self.altBugTemp -= self.RcoarseInc * 100           # Faster movement through altitude
-                    if self.altBugTemp < 0:
-                        self.altBugTemp = 0
+                    self.altBugOut -= self.RcoarseInc * 100           # Faster movement through altitude
+                    if self.altBugOut < 0:
+                        self.altBugOut = 0
                 elif self.pfd.bugselectors.altORvsi == 'vsi':
-                    self.vsiBugTemp -= self.RcoarseInc
+                    self.vsiBugOut -= self.RcoarseInc
             if value > 0: # CW
                 if self.pfd.bugselectors.altORvsi == 'alt':
-                    self.altBugTemp += self.RcoarseInc * 100          # Faster movement through altitude
+                    self.altBugOut += self.RcoarseInc * 100          # Faster movement through altitude
                 elif self.pfd.bugselectors.altORvsi == 'vsi':
-                    self.vsiBugTemp += self.RcoarseInc
+                    self.vsiBugOut += self.RcoarseInc
 
     def confirmBugsLeft(self, dt):
         # Gets called when the left encoder is pressed
         if self.pfd.bugselectors.hdgORspd == 'hdg':
-            self.headingBugOut = self.headingBugTemp
+            self.headingBugOut = self.heading
         if self.pfd.bugselectors.hdgORspd == 'spd':
-            self.spdBugOut = self.spdBugTemp
+            self.spdBugOut = self.speed
 
     def confirmBugsRight(self, dt):
         # Gets called when the right encoder is pressed
         if self.pfd.bugselectors.altORvsi == 'alt':
-            self.altBugOut = self.altBugTemp
+            self.altBugOut = self.altitude
         if self.pfd.bugselectors.altORvsi == 'vsi':
-            self.vsiBugOut = self.vsiBugTemp
+            self.vsiBugOut = self.vSpeed
 
 # =======================================================================================================================
 def main():

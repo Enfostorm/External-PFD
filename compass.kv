@@ -171,7 +171,7 @@
             canvas.before:
                 PushMatrix:
                 Rotate:
-                    angle: -root.groundTrack
+                    angle: root.heading -root.groundTrack
                     origin: root.center
             canvas.after:
                 PopMatrix:
