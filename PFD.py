@@ -211,6 +211,7 @@ class PfdApp(App):
                 print(repr(e) + '\n')
 
     def answerQuery(self):
+        # Used to identify multiple components in the main system. Identifies this link as the link to the PFD.
         self.ser.write('PFD\n'.encode())
             
     def serialWriteValues(self, dt):
