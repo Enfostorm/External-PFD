@@ -305,7 +305,7 @@ class PfdApp(App):
         if abs(value) == 1:     # Left fine encoder
             if value < 0: # CCW
                 if self.pfd.bugselectors.hdgORspd == 'hdg':
-                    self.headingBug -= self.LfineInc
+                    self.headingBugOut -= self.LfineInc
                     if self.headingBugOut < 0:
                         self.headingBugOut += 360
                 elif self.pfd.bugselectors.hdgORspd == 'spd':
