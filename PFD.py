@@ -221,7 +221,7 @@ class PfdApp(App):
             valueList = [self.headingBugOut, self.altBugOut, self.spdBugOut, self.vsiBugOut]
             outputString = self.strForSerialOut(valueList)
             if self.simulink_fix:           # If fix is turned on, fill out until 50 characters.
-                outputString.ljust(48, '0')
+                outputString = outputString.ljust(48, '0')
             outputString = outputString + ';\n'
             print(outputString)
             self.ser.write(outputString.encode())
